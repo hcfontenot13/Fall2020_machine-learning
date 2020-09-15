@@ -67,16 +67,6 @@ class linearRegression(torch.nn.Module):
         return out
 
 
-# inputDim = 3
-# outputDim = 1
-# learningRate = 0.01
-# epochs = 500
-
-# model = linearRegression(inputDim, outputDim)
-# criterion = torch.nn.MSELoss()
-# optimizer = torch.optim.Adam(model.parameters(), lr=learningRate)
-
-
 def train(X_train, Y_train, epochs, ridge=None, lasso=None):
     model = linearRegression(X_train.shape[1], Y_train.shape[1])
     criterion = torch.nn.MSELoss()
