@@ -119,7 +119,7 @@ print('Accuracy: ', classification_results(pred.numpy(), Y_test[:, 0]))
 # Define with softmax activation
 """
 NOTE:Softmax is the generalization of the sigmoid function. 
-So if you are doing binary classification you may use sigmoid (like in the commented out line 125).
+So if you are doing binary classification you may use sigmoid (like in the commented out line 134).
 But for multiclass classification you need to use softmax.
 """
 
