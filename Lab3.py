@@ -16,7 +16,7 @@ X = iris.data
 Y = iris.target
 
 Y = Y.reshape(-1, 1)
-nclass = np.unique(Y)
+nclass = len(np.unique(Y))
 
 # Examine feature correlations
 print(np.corrcoef(X[:, 0], Y[:, 0]))
@@ -94,14 +94,14 @@ def classification_results(y_pred, y_actual):
 
 
 # Train using all features
-model_logr = train(X_train=X_train, Y_train=Y_train, epochs=50)
+model_logr = train(X_train=X_train, Y_train=Y_train, epochs=20)
 with torch.no_grad():
     y_predicted = model_logr(torch.from_numpy(X_test).float())
 _, pred = torch.max(y_predicted, 1)
 print(classification_results(pred.numpy(), Y_test[:, 0]))
 
 # Use only the two features most highly correlated with target
-model_1 = train(X_train=X_train[:, 2:4], Y_train=Y_train, epochs=50)
+model_1 = train(X_train=X_train[:, 2:4], Y_train=Y_train, epochs=20)
 with torch.no_grad():
     y_predicted = model_1(torch.from_numpy(X_test[:, 2:4]).float())
 _, pred = torch.max(y_predicted, 1)
@@ -126,7 +126,7 @@ for k in range(K):
     X_train, X_test = X[trn_idx, :], X[tst_idx, :]
     Y_train, Y_test = Y[trn_idx], Y[tst_idx]
 
-    modelK = train(X_train=X_train, Y_train=Y_train, epochs=100)
+    modelK = train(X_train=X_train, Y_train=Y_train, epochs=20)
     with torch.no_grad():
         y_predicted = modelK(torch.from_numpy(X_test).float())
     _, pred = torch.max(y_predicted, 1)
