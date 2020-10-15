@@ -1,13 +1,12 @@
+
 import numpy as np
 from matplotlib import pyplot as plt
 import torch
 from sklearn import datasets
 
-
 # Load dataset and view description
 boston = datasets.load_boston()
 print(boston.DESCR)
-
 
 # Set training and target data
 data = boston.data
@@ -17,7 +16,6 @@ names = boston.feature_names.tolist()
 target = target.reshape(-1, 1)
 x_train, y_train = data[:450, ], target[:450, ]
 x_test, y_test = data[:450, ], target[:450, ]
-
 
 # ------------------------------------------------------------
 # Problem 1: Explore relationships between features of the data
@@ -34,7 +32,7 @@ for i, feature in enumerate(names):
 
 # Plot the features with correlation > 0.4
 for i in range(6):
-    plt.subplot(2, 3, i+1)
+    plt.subplot(2, 3, i + 1)
     plt.plot(data[:, R[i]], target, 'o')
     plt.xlabel(names[R[i]])
     plt.ylabel('MEDV')
@@ -125,12 +123,11 @@ plt.figure()
 plt.plot(np.abs(y_predicted - y_train), 'o')
 plt.legend(['absolute error'])
 
-
 # ------------------------------------------------------------
 # Problem 3: Ridge regression
 # ------------------------------------------------------------
 
-model_rdg = train(x_train=x_train, y_train=y_train, epochs=1000, lr=0.1, ridge=True, reg_lambda=1)
+model_rdg = train(x_train=x_train, y_train=y_train, epochs=1000, lr=0.1, ridge=True, reg_lambda=0.5)
 with torch.no_grad():
     y_predicted = model_rdg(torch.from_numpy(x_test).float()).numpy()
 
@@ -150,12 +147,11 @@ plt.figure()
 plt.plot(np.abs(y_predicted - y_train), 'o')
 plt.legend(['absolute error'])
 
-
 # ------------------------------------------------------------
 # Problem 4: Lasso
 # ------------------------------------------------------------
 
-model_lso = train(x_train=x_train, y_train=y_train, epochs=1000, lr=0.1, lasso=True, reg_lambda=0.1)
+model_lso = train(x_train=x_train, y_train=y_train, epochs=1000, lr=0.1, lasso=True, reg_lambda=5)
 with torch.no_grad():
     y_predicted = model_lso(torch.from_numpy(x_test).float()).numpy()
 
@@ -175,7 +171,6 @@ plt.figure()
 plt.plot(np.abs(y_predicted - y_train), 'o')
 plt.legend(['absolute error'])
 
-
 # ------------------------------------------------------------
 # Problem 5: Cross-validated Linear Regression
 # ------------------------------------------------------------
@@ -184,6 +179,10 @@ K = 5
 idx = np.array(list(range(x_train.shape[0])))
 splits = np.split(idx, K)
 rmse_all = np.zeros((K, 1))
+mape_all = np.zeros((K, 1))
+mae_all = np.zeros((K, 1))
+mbe_all = np.zeros((K, 1))
+r2_all = np.zeros((K, 1))
 for k in range(K):
     tst_idx = splits[k]
     trn_idx = np.delete(idx, splits[k])
@@ -194,44 +193,96 @@ for k in range(K):
     with torch.no_grad():
         y_predicted = modelK(torch.from_numpy(x_tst).float()).numpy()
 
-    rmse, _, _, _, _ = error_metrics(y_tst, y_predicted)
+    rmse, mape, mae, mbe, r2 = error_metrics(y_tst, y_predicted)
     rmse_all[k] = rmse
+    mape_all[k] = mape
+    mae_all[k] = mae
+    mbe_all[k] = mbe
+    r2_all[k] = r2
 
 rmse_lr_cv = rmse_all.mean()
+mape_lr_cv = mape_all.mean()
+mae_lr_cv = mae_all.mean()
+mbe_lr_cv = mbe_all.mean()
+r2_lr_cv = r2_all.mean()
 
 rmse_all = np.zeros((K, 1))
+mape_all = np.zeros((K, 1))
+mae_all = np.zeros((K, 1))
+mbe_all = np.zeros((K, 1))
+r2_all = np.zeros((K, 1))
 for k in range(K):
     tst_idx = splits[k]
     trn_idx = np.delete(idx, splits[k])
     x_trn, x_tst = data[trn_idx, :], data[tst_idx, :]
     y_trn, y_tst = target[trn_idx], target[tst_idx]
 
-    modelK = train(x_train=x_trn, y_train=y_trn, epochs=1000, lr=0.1, ridge=True, reg_lambda=1)
+    modelK = train(x_train=x_trn, y_train=y_trn, epochs=1000, lr=0.1, ridge=True, reg_lambda=0.5)
     with torch.no_grad():
         y_predicted = modelK(torch.from_numpy(x_tst).float()).numpy()
 
-    rmse, _, _, _, _ = error_metrics(y_tst, y_predicted)
+    rmse, mape, mae, mbe, r2 = error_metrics(y_tst, y_predicted)
     rmse_all[k] = rmse
+    mape_all[k] = mape
+    mae_all[k] = mae
+    mbe_all[k] = mbe
+    r2_all[k] = r2
 
 rmse_rdg_cv = rmse_all.mean()
+mape_rdg_cv = mape_all.mean()
+mae_rdg_cv = mae_all.mean()
+mbe_rdg_cv = mbe_all.mean()
+r2_rdg_cv = r2_all.mean()
 
 rmse_all = np.zeros((K, 1))
+mape_all = np.zeros((K, 1))
+mae_all = np.zeros((K, 1))
+mbe_all = np.zeros((K, 1))
+r2_all = np.zeros((K, 1))
 for k in range(K):
     tst_idx = splits[k]
     trn_idx = np.delete(idx, splits[k])
     x_trn, x_tst = data[trn_idx, :], data[tst_idx, :]
     y_trn, y_tst = target[trn_idx], target[tst_idx]
 
-    modelK = train(x_train=x_trn, y_train=y_trn, epochs=1000, lr=0.1, lasso=True, reg_lambda=0.1)
+    modelK = train(x_train=x_trn, y_train=y_trn, epochs=1000, lr=0.1, lasso=True, reg_lambda=5)
     with torch.no_grad():
         y_predicted = modelK(torch.from_numpy(x_tst).float()).numpy()
 
-    rmse, _, _, _, _ = error_metrics(y_tst, y_predicted)
+    rmse, mape, mae, mbe, r2 = error_metrics(y_tst, y_predicted)
     rmse_all[k] = rmse
+    mape_all[k] = mape
+    mae_all[k] = mae
+    mbe_all[k] = mbe
+    r2_all[k] = r2
 
 rmse_lso_cv = rmse_all.mean()
+mape_lso_cv = mape_all.mean()
+mae_lso_cv = mae_all.mean()
+mbe_lso_cv = mbe_all.mean()
+r2_lso_cv = r2_all.mean()
 
 print('Cross-Validated RMSE')
 print('Lin Reg: {}'.format(rmse_lr_cv))
 print('Rdg Reg: {}'.format(rmse_rdg_cv))
 print('Lasso: {}'.format(rmse_lso_cv))
+
+print('Cross-Validated MAPE')
+print('Lin Reg: {}'.format(mape_lr_cv))
+print('Rdg Reg: {}'.format(mape_rdg_cv))
+print('Lasso: {}'.format(mape_lso_cv))
+
+print('Cross-Validated MAE')
+print('Lin Reg: {}'.format(mae_lr_cv))
+print('Rdg Reg: {}'.format(mae_rdg_cv))
+print('Lasso: {}'.format(mae_lso_cv))
+
+print('Cross-Validated MBE')
+print('Lin Reg: {}'.format(mbe_lr_cv))
+print('Rdg Reg: {}'.format(mbe_rdg_cv))
+print('Lasso: {}'.format(mbe_lso_cv))
+
+print('Cross-Validated R^2')
+print('Lin Reg: {}'.format(r2_lr_cv))
+print('Rdg Reg: {}'.format(r2_rdg_cv))
+print('Lasso: {}'.format(r2_lso_cv))
