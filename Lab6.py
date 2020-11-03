@@ -180,10 +180,12 @@ rmse = np.sqrt(np.mean((y_pred - data_test) ** 2))
 
 # Plotting
 plt.figure()
-plt.plot(data, label='actual')
+plt.plot(data, label='actual', linewidth=2)
 plt.plot(range(len(data)-test_size, len(data)), y_pred, '-o', markersize=10, label='predictions')
 plt.legend(loc='best', fontsize=14)
 plt.xlabel('Time step', fontsize=14)
 plt.ylabel('Y-value', fontsize=14)
-plt.title('{} Method: RMSE = {}'.format(rnn_type.upper(), rmse), fontsize=18)
+plt.title('{} Method: RMSE = {}'.format(rnn_type.upper(), round(rmse, 3)), fontsize=18)
 plt.show()
+
+
