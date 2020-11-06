@@ -11,8 +11,7 @@ N = 100
 x = np.arange(1,N+1)
 y1 = 5*np.sin(5*x) + np.random.randn(N)
 y2 = 0.05*x + np.random.randn(N)
-data = y1 + y2
-full_data = np.vstack((y2, data))
+data = y1 + y2 + 10
 plt.plot(data)
 
 # Split into test/train
@@ -174,9 +173,10 @@ y_pred_unscaled = test(model, rnn_type, test_inputs, pred_len)
 y_pred = scaler.inverse_transform(np.array(y_pred_unscaled).reshape(-1, 1))
 print(y_pred)
 
-# RMSE
+# RMSE, MAPE
+data_test = data_test.reshape(-1, 1)
 rmse = np.sqrt(np.mean((y_pred - data_test) ** 2))
-
+mape = np.mean(np.abs((y_pred - data_test) / data_test))
 
 # Plotting
 plt.figure()
@@ -185,7 +185,7 @@ plt.plot(range(len(data)-test_size, len(data)), y_pred, '-o', markersize=10, lab
 plt.legend(loc='best', fontsize=14)
 plt.xlabel('Time step', fontsize=14)
 plt.ylabel('Y-value', fontsize=14)
-plt.title('{} Method: RMSE = {}'.format(rnn_type.upper(), round(rmse, 3)), fontsize=18)
+plt.title('{} Method: RMSE = {}, MAPE = {}%'.format(rnn_type.upper(), round(rmse, 3), round(100*mape, 1)), fontsize=18)
 plt.show()
 
 
